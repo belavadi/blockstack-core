@@ -1,57 +1,18 @@
-# Group Authorization
-
-## Auth Request View [GET /auth?authRequest={authRequestToken}]
-
-This endpoint is accessed internally by
-[blockstack.js](https://github.com/blockstack/blockstack.js) to process user
-sign-in requests.  Applications use `blockstack.js` to direct users to sign in
-or sign up.  Please see the [blockstack.js
-documentation](http://blockstack.github.io/blockstack.js/#authentication) on
-authentication for details.
-
-When the user clicks the Blockstack login button in an application, the app should
-redirect the user to this endpoint (via `blockstack.js`).  If the user already has an
-account, they will be redirected along with requested data. If the
-user doesn’t have an account, the user will be presented with each of
-the app’s requested permissions, then will satisfy or deny them. The
-sign-in dashboard will then redirect the user back to the application
-with a signed JWT.  This JWT contains a signature and an API
-token that the app can use for future authorization of endpoints.
-
-Each application specifies in advance which family of API calls it
-will need to make to function properly.  This list is passed along to
-this endpoint when creating an application account.  The
-account-creation page shows this list of API endpoints and what they
-do, and allows the user to line-item approve or deny them.  The list
-is stored to the user's profile, and returned to the application
-application as part of the session JWT.  The API
-server will NACK requests to endpoints in API families absent from the
-session JWT.
-
-+ Requires root authorization
-+ Parameters
-    + authRequestToken: eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksifQ.eyJhcHBfZG9tYWluIjoiaGVsbG9ibG9ja3N0YWNrLmNvbSIsIm1ldGhvZHMiOltdLCJhcHBfcHVibGljX2tleSI6IjAyYjk0ZjY4NDgzOGFkMjdmZTE0Nzk1MGMyNjQ1ZjRhYzhjYmU1OTJlYjYzYmQwYTQ5MWQ2YzBlYWZjNjE0YzVjMCJ9.0lLrxt8uGtB2rCKB9sb0jK1DdrrWuuuWM-nsyjvFnmjNx0XfG14Npl72w6hp9W2OHoXdPe7VuXkfvKmVNlQdeA (jwt token) - app token before signing
-+ Response 200
-  + Body
-
-             {"token": 
-              "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJhcHBfZG9tYWluIjoiaGVsbG9ibG9ja3N0YWNrLmNvbSIsIm1ldGhvZHMiOltdLCJ0aW1lc3RhbXAiOjE0OTkzNDc4OTUsImV4cGlyZXMiOjE0OTk5NTI2OTUsImFwcF91c2VyX2lkIjoiMUVITmE2UTRKejJ1dk5FeEw0OTdtRTQzaWtYaHdGNmtabSIsImRldmljZV9pZCI6IjAiLCJibG9ja2NoYWluX2lkIjpudWxsLCJzdG9yYWdlIjp7ImNsYXNzZXMiOnsid3JpdGVfcHJpdmF0ZSI6WyJkaXNrIiwiczMiLCJibG9ja3N0YWNrX3NlcnZlciIsImRodCJdLCJyZWFkX2xvY2FsIjpbImRpc2siXSwicmVhZF9wdWJsaWMiOlsiczMiLCJibG9ja3N0YWNrX3Jlc29sdmVyIiwiYmxvY2tzdGFja19zZXJ2ZXIiLCJodHRwIiwiZGh0Il0sIndyaXRlX2xvY2FsIjpbImRpc2siXSwid3JpdGVfcHVibGljIjpbXSwicmVhZF9wcml2YXRlIjpbImRpc2siXX0sInByZWZlcmVuY2VzIjp7fX0sImFwaV9lbmRwb2ludCI6ImxvY2FsaG9zdDo2MjcwIiwiYXBwX3B1YmxpY19rZXlzIjpbXSwidmVyc2lvbiI6MX0.Bhne8wQpPVfkV-VLf2mrsoMmNiE2e04crgLN7OUFKEh_YWeGmqjoZU7JVSzXA5r7LCpZ9Eki5uAWlJSHk-JuCA"
-             }
-
 # Group Core Node Administration
 
 Blockstack Core's API module provides a set of API calls for interacting with
-the node's configuration.  However, most of this section is **DEPRECATED** in favor
-of moving configuration state to the [Blockstack
+the node's configuration.  Most configuration state is in the [Blockstack
 Browser](https://github.com/blockstack/blockstack-browser).  Client-side state
 is managed by [blockstack.js](https://github.com/blockstack/blockstack.js).
 
 ## Ping the node [GET /v1/node/ping]
+
 Ping the Blockstack node to see if it's alive.
+
 + Public Endpoint
 + Response 200 (application/json)
   + Body
-  
+
             {
                 "status": "alive",
                 "version": "###version###"
@@ -74,1654 +35,22 @@ Ping the Blockstack node to see if it's alive.
                 ]
             }
 
-## Get the node's config [GET /v1/node/config]
-Returns the current configuation settings of the Blockstack node.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for querying
-client-side configuration state.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "bitcoind": {
-                     "passwd": "blockstacksystem",
-                     "port": "18332",
-                     "regtest": "True",
-                     "server": "localhost",
-                     "spv_path": "/tmp/.../spv_headers.dat",
-                     "use_https": "False",
-                     "user": "blockstack"
-                 },
-                 "blockchain-reader": {
-                     "port": "18332",
-                     "rpc_password": "blockstacksystem",
-                     "rpc_username": "blockstack",
-                     "server": "localhost",
-                     "use_https": "False",
-                     "utxo_provider": "bitcoind_utxo",
-                     "version_byte": "0"
-                 },
-                 "blockchain-writer": {
-                     "port": "18332",
-                     "rpc_password": "blockstacksystem",
-                     "rpc_username": "blockstack",
-                     "server": "localhost",
-                     "use_https": "False",
-                     "utxo_provider": "bitcoind_utxo",
-                     "version_byte": "0"
-                 },
-                 "blockstack-client": {
-                     "advanced_mode": "true",
-                     "api_endpoint_port": "6270",
-                     "api_password": "...",
-                     "blockchain_reader": "bitcoind_utxo",
-                     "blockchain_writer": "bitcoind_utxo",
-                     "client_version": "0.18.0.0",
-                     "poll_interval": "300",
-                     "port": "16264",
-                     "queue_path": "/tmp/.../client/queues.db",
-                     "rpc_detach": "True",
-                     "server": "localhost",
-                     "storage_drivers": "disk",
-                     "storage_drivers_required_write": "disk",
-                 }
-             }
-    
-  + Schema
-
-             {
-                 'type': 'object',
-                 'patternProperties': {
-                     '.+': {
-                         'type': 'string',
-                         'pattern': '.+',
-                 },
-             }
-     
-## Set config field [POST /v1/node/config/{section}?{key}={value}]
-Set one or more config fields in a config section.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for client-side
-configuration management.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Parameters
-  + section: blockstack-client (string) - configuration section
-  + key: server (string) - configuration variable to set
-  + value: node.blockstack.org (string) - value to set
-
-+ Response 200 (application/json)
-  + Body
-
-             { 'status' : true }
-
-  + Schema
-
-                 {
-                   'anyOf': [
-                     {
-                           'type': 'object',
-                           'properties': {
-                                'status': {
-                                   'type': 'boolean'
-                                },
-                           },
-                     },
-                     {
-                         'type': 'object',
-                         'properties': {
-                             'error': {
-                                 'type': 'string',
-                             },
-                         },
-                     },
-                   ],
-                }
-
-## Delete a config field [DELETE /v1/node/config/{section}/{key}]
-Delete a single field from the configuration.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for client-side
-configuration management.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Parameters
-  + section: blockstack-client (string) - configuration section
-  + key: advanced_mode (string) - configuration variable to set
-
-+ Response 200 (application/json)
-
-  + Body
-
-             { 'status' : true }
-
-  + Schema
-
-             {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'status': {
-                              'type': 'boolean'
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-             }
-
-## Delete a config section [DELETE /v1/node/config/{section}]
-Deletes a whole section from the node's configuration.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for client-side
-configuration management.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Parameters
-    + section: blockstack-client (string) - configuration section
-
-+ Response 200 (application/json)
-  + Body
-
-             { 'status' : true }
-
-  + Schema
-
-             {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'status': {
-                              'type': 'boolean'
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-             }
-
-## Get registrar state [GET /v1/node/registrar/state]
-Gets the current state of the registrar. That is, the Blockstack operations 
-that have been submitted to the blockchain but are still waiting for
-enough confirmations.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to query
-the status of pending transactions.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             [
-                 {
-                     "block_height": 666,
-                     "fqu": "bar.test",
-                     "owner_address": "myaPViveUWiiZQQTb51KXCDde4iLC3Rf3K",
-                     "payment_address": "mv1uqYWZpnap4VBSKTHfKW6noTZcNtxtCW",
-                     "profile": {
-                         "@type": "Person",
-                         "accounts": []
-                     },
-                     "transfer_address": null,
-                     "tx_hash": "b0fa7d4d79bb69cb3eccf40978514dec1620d05fe7822c550c2764c670efcd29",
-                     "type": "preorder",
-                     "zonefile": "$ORIGIN bar.test\n$TTL 3600\npubkey TXT \"pubkey:data:03ea5d8c2a3ba84eb17625162320bb53440557c71f7977a57d61405e86be7bdcda\"\n_file URI 10 1 \"file:///home/bar/.blockstack/storage-disk/mutable/bar.test\"\n",
-                     "zonefile_hash": "cbe11bbbfffe415b915a7f9566748f72a0d8b2bd"
-                 }
-             ]
-
-  + Schema
-
-            {
-                'type': 'array',
-                'items': {
-                    'type': 'object',
-                    'properties': {
-                        'block_height': {
-                            'type': 'integer',
-                            'minimum': 0,
-                        },
-                        'fqu': {
-                            'type': 'string',
-                            'pattern': r'^([a-z0-9\\-_.+]{3,37})$',
-                        },
-                        'owner_address': {
-                            'type': 'string',
-                            'pattern': r'^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                        },
-                        'payment_address': {
-                            'type': 'string',
-                            'pattern': r'^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                        },
-                        'profile': {
-                            'type': 'object',
-                            'additionalProperties': true, 
-                            'properties': {
-                                '@context': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                '@id': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                '@type': {
-                                    'type': 'string'
-                                }, 
-                                'account': {
-                                    'items': {
-                                        'properties': {
-                                            '@type': {
-                                                'type': 'string'
-                                            }, 
-                                            'identifier': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'proofMessage': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'proofSignature': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'proofType': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'proofUrl': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'service': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }
-                                        }, 
-                                        'type': 'object'
-                                    }, 
-                                    'optional': true, 
-                                    'type': 'array'
-                                }, 
-                                'address': {
-                                    'optional': true, 
-                                    'properties': {
-                                        '@type': {
-                                            'type': 'string'
-                                        }, 
-                                        'addressCountry': {
-                                            'optional': true, 
-                                            'type': 'string'
-                                        }, 
-                                        'addressLocality': {
-                                            'optional': true, 
-                                            'type': 'string'
-                                        }, 
-                                        'postalCode': {
-                                            'optional': true, 
-                                            'type': 'string'
-                                        }, 
-                                        'streetAddress': {
-                                            'optional': true, 
-                                            'type': 'string'
-                                        }
-                                    }, 
-                                    'type': 'object'
-                                }, 
-                                'birthDate': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'description': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'familyName': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'givenName': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'image': {
-                                    'items': {
-                                        'properties': {
-                                            '@type': {
-                                                'type': 'string'
-                                            }, 
-                                            'contentUrl': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            'name': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }
-                                        }, 
-                                        'type': 'object'
-                                    }, 
-                                    'optional': true, 
-                                    'type': 'array'
-                                }, 
-                                'knows': {
-                                    'items': {
-                                        'properties': {
-                                            '@id': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            '@type': {
-                                                'type': 'string'
-                                            }
-                                        }, 
-                                        'type': 'object'
-                                    }, 
-                                    'optional': true, 
-                                    'type': 'array'
-                                }, 
-                                'name': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'taxID': {
-                                    'optional': true, 
-                                    'type': 'string'
-                                }, 
-                                'website': {
-                                    'items': {
-                                        'properties': {
-                                            '@type': {
-                                                'type': 'string'
-                                            }, 
-                                            'url': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }
-                                        }, 
-                                        'type': 'object'
-                                    }, 
-                                    'optional': true, 
-                                    'type': 'array'
-                                }, 
-                                'worksFor': {
-                                    'items': {
-                                        'properties': {
-                                            '@id': {
-                                                'optional': true, 
-                                                'type': 'string'
-                                            }, 
-                                            '@type': {
-                                                'type': 'string'
-                                            }
-                                        }, 
-                                        'type': 'object'
-                                    }, 
-                                    'optional': true, 
-                                    'type': 'array'
-                                }
-                            }
-                        },
-                        'transfer_address': r'^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                        'tx_hash': r'^([0-9a-fA-F]+)$',
-                        'type': '.+',
-                        'zonefile': '.+',
-                        'zonefile_hash': r'^([0-9a-fA-F]+)$'
-                    }
-                }
-            }
-
-
-# Group Core Wallet Management
-
-This entire section is **DEPRECATED** in favor of the wallet software in
-[blockstack.js](https://github.com/blockstack/blockstack.js).  Names registered
-with this API will need to be transferred to the Blockstack Browser.
-
-The Blockstack Core node manages its own wallet -- this has three keys
-for payment, name ownership, and signing data (e.g., user profiles). This
-wallet can be managed through these endpoints.
-
-## Get balance via mock-insight API [GET /insight-api/addr/{address}/balance]
-Returns the integer satoshi balance of the given address, with mininum
-of 1 confirmation.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to query
-balances.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             2104
-
-  + Schema
-
-             { 'type' : 'integer' }
-
-## Get unconfirmed balance via mock-insight API [GET /insight-api/addr/{address}/unconfirmedBalance]
-Returns the integer *unconfirmed* satoshi balance of the given address
-(only the 0-confirmation balance). To get the min_conf=0 balance of an
-address, you want *unconfirmedBalance* + *balance*. The unconfirmed
-balance may be negative (if there is an unconfirmed spend). This
-specification is strange, I know, but it replicates the interface of
-insight-api.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to query
-balances.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             -1000
-
-  + Schema
-
-             { 'type' : 'integer' }
-
-## Get wallet payment address [GET /v1/wallet/payment_address]
-
-Returns core node's payment address.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys
-and query UTXOs.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "address": "mv1uqYWZpnap4VBSKTHfKW6noTZcNtxtCW"
-             }
-
-  + Schema
-
-             {
-                 'type': 'object',
-                 'properties': {
-                     'type': 'string',
-                     'pattern': r'^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                 }
-             }
-
-## Set a specific wallet key [PUT /v1/wallet/keys/{keyname}]
-This call instructs the blockstack core node to use a particular key
-instead of the core node's configured wallet key. The setting of this
-key is *temporary* by default, meaning that it is not written to
-`~/.blockstack/wallet.json`, and on a subsequent restart, the key will
-return to the original key.  However, the core registrar *tracks* the
-owner key used for each `PREORDER`, and stores that private key
-encrypted (with `scrypt` and the core wallet password) in the
-queue. When the registrar detects that the key being used for a
-particular name has changed, it will recover by submitting further
-transactions with the stored key.
-
-However, for blockstack core >= 0.14.5, the `persist_change` keyword
-will instruct the core node to write the changed key to
-`~/.blockstack/wallet.json`. In this mode, the node will backup the
-previous wallet to `~/.blockstack/wallet.json.prior.<timestamp>`
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys.
-+ Requires root authorization
-+ Legacy Endpoint
-+ Parameters
-    + keyname: owner (string) - which key to set (one of 'owner', 'data', 'payment')
-
-+ Request (application/json)
-  + Body
-
-              "cPo24qGYz76xSbUCug6e8LzmzLGJPZoowQC7fCVPLN2tzCUJgfcW"
-
-+ Request (application/json)
-  + Schema
-
-              {
-                "type" : "object",
-                "properties" : {
-                  "private_key" : {
-                     "anyOf": [
-                         {
-                             "anyOf": [
-                                 {
-                                     "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                                     "type": "string"
-                                 },
-                                 {
-                                     "pattern": "^([0-9a-fA-F]+)$",
-                                     "type": "string"
-                                 }
-                             ]
-                         },
-                         {
-                             "properties": {
-                                 "address": {
-                                     "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                                     "type": "string"
-                                 },
-                                 "private_keys": {
-                                     "items": {
-                                         "anyOf": [
-                                             {
-                                                 "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$", 
-                                                 "type": "string"
-                                             },
-                                             {
-                                                 "pattern": "^([0-9a-fA-F]+)$",
-                                                 "type": "string"
-                                             }
-                                         ]
-                                     },
-                                     "type": "array"
-                                 },
-                                 "redeem_script": {
-                                     "pattern": "^([0-9a-fA-F]+)$",
-                                     "type": "string"
-                                 }
-                             },
-                             "required": [
-                                 "address",
-                                 "redeem_script",
-                                 "private_keys"
-                             ],
-                             "type": "object"
-                         }
-                     ]
-                    },
-                  "persist_change" : {"type" : "boolean"}
-              },
-              "required" : [ "private_key" ]
-             }
-
-+ Request (application/json)
-  + Schema
-
-              {
-                "anyOf": [
-                    {
-                        "anyOf": [
-                            {
-                                "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                                "type": "string"
-                            },
-                            {
-                                "pattern": "^([0-9a-fA-F]+)$",
-                                "type": "string"
-                            }
-                        ]
-                    },
-                    {
-                        "properties": {
-                            "address": {
-                                "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                                "type": "string"
-                            },
-                            "private_keys": {
-                                "items": {
-                                    "anyOf": [
-                                        {
-                                            "pattern": "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$", 
-                                            "type": "string"
-                                        },
-                                        {
-                                            "pattern": "^([0-9a-fA-F]+)$",
-                                            "type": "string"
-                                        }
-                                    ]
-                                },
-                                "type": "array"
-                            },
-                            "redeem_script": {
-                                "pattern": "^([0-9a-fA-F]+)$",
-                                "type": "string"
-                            }
-                        },
-                        "required": [
-                            "address",
-                            "redeem_script",
-                            "private_keys"
-                        ],
-                        "type": "object"
-                    }
-                ]
-              }
-
-+ Response 200 (application/json)
-  + Body
-
-              {"status": true}
-
-  + Schema
-
-             {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'status': {
-                              'type': 'boolean'
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-             }
-
-## Get payment wallet balance [GET /v1/wallet/balance/{minconfs}]
-
-Fetches wallet balance, including UTXOs from transactions with at
-least a specified number of confirmations.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys
-and query UTXOs.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Parameters
-  + minconfs: 0 (number, optional) - the minimum confs of transactions to include in balance
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "balance": {
-                     "bitcoin": 49.931727,
-                     "satoshis": 4993172700
-                 }
-             }
-
-  + Schema
-
-              {
-                 'type': 'object',
-                 'properties': {
-                     'balance': {
-                         'type': 'object',
-                             'properties': {
-                                 'bitcoin': {
-                                     'type': 'number',
-                                     'minimum': 0,
-                                 },
-                                 'satoshis': {
-                                     'type': 'integer',
-                                     'minimum': 0,
-                                 },
-                             },
-                         },
-                   },
-                }
-
-## Withdraw payment wallet funds [POST /v1/wallet/balance]
-Withdraw an amount (given in satoshis) from the core payment
-wallet, to a particular address.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys,
-generate transactions, and send transactions.
-+ Authorization: `wallet_write`
-+ Legacy Endpoint
-+ Request (application/json)
-  + Body
-
-            {'address' : 'mibZW6EBpXSTWQNQ9E4fi9hhGKYSMkjyg9',
-               'amount' : 100,
-               'min_confs' : 6,
-               'tx_only' : false}
-
-  + Schema
-
-            {
-                'type': 'object',
-                'properties': {
-                    'address': {
-                        'type': 'string',
-                        'pattern': r"^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                    },
-                    'amount': {
-                        'type': 'integer',
-                        'minimum': 0,
-                    },
-                    'message': {
-                        'type': 'string',
-                        'pattern': '^.{1,80}$',
-                    }
-                    'min_confs': {
-                        'type': 'integer',
-                        'minimum': 0,
-                    },
-                    'tx_only': {
-                        'type': 'boolean'
-                    },
-                    'payment_key': {
-                        'anyOf': [
-                            {
-                                'anyOf': [
-                                    {
-                                        'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                        'type': 'string'
-                                    },
-                                    {
-                                        'pattern': '^([0-9a-fA-F]+)$',
-                                        'type': 'string'
-                                    }
-                                ]
-                            },
-                            {
-                                'properties': {
-                                    'address': {
-                                        'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                        'type': 'string'
-                                    },
-                                    'private_keys': {
-                                        'items': {
-                                            'anyOf': [
-                                                {
-                                                    'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                    'type': 'string'
-                                                },
-                                                {
-                                                    'pattern': '^([0-9a-fA-F]+)$',
-                                                    'type': 'string'
-                                                }
-                                            ]
-                                        },
-                                        'type': 'array'
-                                    },
-                                    'redeem_script': {
-                                        'pattern': '^([0-9a-fA-F]+)$',
-                                        'type': 'string'
-                                    }
-                                },
-                                'required': [
-                                    'owner'
-                                ],
-                                'type': 'object'
-                            }
-                        ]
-                    }
-                },
-                'required': [
-                    'address'
-                ],
-            }
-
-+ Response 200 (application/json)
-  + Body
-
-             {
-              "status": true, 
-              "transaction_hash": "c4ee8d1993794487e6b5aca802a1793530bdff35c763ca051fbaa4b998780822",
-              "success": true
-             }
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'success': {
-                              'type': 'boolean'
-                           },
-                           'transaction_hash': {
-                               'type': 'string',
-                               'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-                
-
-## Get wallet owner address [GET /v1/wallet/owner_address]
-Returns core node's owner address.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "address": "myaPViveUWiiZQQTb51KXCDde4iLC3Rf3K"
-             }
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'address': {
-                              'type': 'string',
-                              'pattern': r"^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-
-## Get wallet data public key [GET /v1/wallet/data_pubkey]
-Returns the public key the core node uses for signing user data
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys.
-+ Authorization: `wallet_read`
-+ Legacy Endpoint
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "public_key": "03ea5d8c2a3ba84eb17625162320bb53440557c71f7977a57d61405e86be7bdcda"
-             }
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'public_key': {
-                              'type': 'string',
-                              'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-## Change wallet password [PUT /v1/wallet/password]
-This will change the password for core's wallet. Currently not working endpoint.
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to encrypt keys.
-+ Authorization: `wallet_write`
-+ Legacy Endpoint
-+ Request (application/json)
-  + Body
-  
-              {'password' : '"0123456789abcdef"',
-               'new_password' : "abcdef0123456789"'}
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'password': {
-                              'type': 'string',
-                           },
-                           'new_password': {
-                              'type': 'string',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-## Set all wallet keys [PUT /v1/wallet/keys]
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to manage keys
-in a client wallet.
-+ Legacy Endpoint
-+ Requires root authorization
-
-## Get all wallet keys [GET /v1/wallet/keys]
-
-+ DEPRECATED.  Blockstack clients should use 
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to interact with
-a client wallet.
-+ Legacy Endpoint
-+ Requires root authorization
-
 # Group Managing Names
 
-All POST, PUT, and DELETE routes in this section are **DEPRECATED** in favor of using either the [Blockstack
-Browser](https://github.com/blockstack/blockstack-browser) or 
-[blockstack.js](https://github.com/blockstack/blockstack.js) to register and
-manage names.
-
-All GET routes are still valid.
-
-## Register a name [POST /v1/names]
-Registers a name, optionally to a given owner key and optionally using
-a given payment key to pay for the name and transaction fees.
-
-This method takes a JSON blob with the following fields:
-
-* `name`: (required) the fully-qualified name to register.
-* `zonefile`: (optional) the zone file to associate with this name.  If one is
-  not given, a default one will be generated.
-* `owner_address`: (optional) the recipient of this name.  See below.
-* `min_confs`: (optional) this is the minimum number of confirmations for UTXOs
-  that will be used for payments for this name registration.  Lower values speed
-up the name registration time, at the risk of blockchain reorgs or frontrunners
-invalidating your name's registration.
-* `tx_fee`: (optional) use this transaction fee (in satoshis) instead of
-  estimating one.
-* `cost_satoshis`: (optional) how much to pay for this name.  This value will be
-  sent to the name's namespace's designated burn address.  If not given, the
-precise value will be looked up automatically.
-* `unsafe`: (optional) ignore internal safety checks when generating and sending
-  transactions.  See below.
-* `owner_key`: (optional) if given, this is the *private key* of the owner
-that will receive the name.  Useful for when you want to use your *personal*
-node to register names to a different key, without having to bother with the
-extra `NAME_TRANSFER` transaction required by passing `owner_address`.
-DO NOT USE IN PUBLIC SETTINGS.
-* `payment_key`: (optional) if given, this is the *private key* used to pay for
-  the name registration fee and transaction fees.  Useful for when you want to
-use your *personal* node to register names with a different payment key.  DO NOT
-USE IN PUBLIC SETTINGS.
-
-If no `owner_address` is supplied in the POSTed JSON
-object, the node will register a name for the `owner_key` given in the
-JSON blob.  If no `owner_key` is given, then the node's current owner address
-in its wallet will be used.
-
-If an `owner_address` is supplied, a `TRANSFER` transaction will be
-broadcasted to send the name to appropriate owner.  If you intend to register
-many names to different addresses, it is recommended that you use one of the
-wallet endpoints to set the node's owner keys to save yourself the extra
-`TRANSFER` transactions (or pass `owner_key`).  However, you should *ONLY* do
-this if you trust the node (i.e. only do this for personal nodes).
-
-The `min_confs` keyword controls the minimum number of confirmations for
-UTXOs used as payments for name registration.
-
-The `unsafe` keyword instructs the node's registrar to ignore certain
-safety checks while registering the name (in particular, the registrar
-will not verify that the user own's the name before issuing a
-`REGISTER` and `UPDATE`). This allows the registrar to submit
-operations before they have been confirmed on remote resolvers or
-indexers, in this mode, the registrar will wait for 4 confirmations on
-a `PREORDER`, 1 confirmation on a `REGISTER` and 1 confirmation on an
-`UPDATE`. `node.blockstack.org` will correctly detect the registration
-after the `UPDATE` has 6 confirmations.
-
-+ DEPRECATED.  Registering names is now performed by [Blockstack
-  Browser](https://github.com/blockstack/blocktack-browser) and
-[blockstack.js](https://github.com/blockstack/blockstack.js).
-+ Authorization: `register`
-+ Legacy Endpoint
-+ Request (application/json)
-  + Body
-
-             {
-               'name' : 'bar.test'
-             }
-
-+ Request (application/json)
-  + Schema
-
-              {
-                        'type': 'object',
-                        'properties': {
-                            "name": {
-                                'type': 'string',
-                                'pattern': OP_NAME_PATTERN
-                            },
-                            "zonefile": {
-                                'type': 'string',
-                                'maxLength': RPC_MAX_ZONEFILE_LEN,
-                            },
-                            "owner_address": {
-                                'type': 'string',
-                                'pattern': OP_BASE58CHECK_PATTERN,
-                            },
-                            'min_confs': {
-                                'type': 'integer',
-                                'minimum': 0,
-                            },
-                            'tx_fee': {
-                                'type': 'integer',
-                                'minimum': 0,
-                                'maximum': TX_MAX_FEE,
-                            },
-                            'cost_satoshis': {
-                                'type': 'integer',
-                                'minimum': 0,
-                            },
-                            'unsafe': {
-                                'type': 'boolean'
-                            },
-                            'owner_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            },
-                            'payment_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            }
-                        },
-                        'required': [
-                            'name'
-                        ],
-                        'additionalProperties': False,
-                    }
-
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "message": "Name queued for registration.  The process takes several hours.  You can check the status with `blockstack info`.",
-                 "success": true,
-                 "transaction_hash": "6cdb9722f72875b30e1ab3de463e3960aced951f674be942b302581a9a9469a5"
-             }
-
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'success': {
-                              'type': 'boolean'
-                           },
-                           'transaction_hash': {
-                               'type': 'string',
-                               'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-
-## Revoke name [DELETE /v1/names/{name}]
-Revokes the name from Blockstack.  This renders
-the name unusable until it expires.  Use this method if your private keys 
-are compromised.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for generating
-transactions.
-+ Authorization: `revoke`
-+ Legacy Endpoint
-+ Parameters
-  + name: bar.test (string) - fully-qualified name
-+ Response 200 (application/json)
-  + Body
-
-             {
-                 "message": "Name queued for revocation.  The process takes ~1 hour.  You can check the status with `blockstack info`.",
-                 "success": true,
-                 "transaction_hash": "b2745b706d7a14ce652265de103d7eaefb44a75eb658d7bb1db8868da08768b2"
-             }
-
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'success': {
-                              'type': 'boolean'
-                           },
-                           'transaction_hash': {
-                               'type': 'string',
-                               'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-
-## Transfer name [PUT /v1/names/{name}/owner]
-Transfers a name to a different owner.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for generating
-transactions.
-+ Authorization: `transfer`
-+ Legacy Endpoint
-+ Parameters
-  + name: bar.test (string) - name to transfer
-+ Request (application/json)
-  + Body
-
-             { "owner" : "mjZicz7GSJBZuGeCMEgpzr8U9w6d41DfXm" }
-
-+ Request (application/json)
-  + Schema
-
-
-                      {
-                        'type': 'object',
-                        'properties': {
-                            'owner': {
-                                'type': 'string',
-                                'pattern': OP_BASE58CHECK_PATTERN,
-                            },
-                            'tx_fee': {
-                                'type': 'integer',
-                                'minimum': 0,
-                                'maximum': 500000
-                            },
-                            'owner_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            },
-                            'payment_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            }
-                        },
-                        'additionalProperties': False,
-                    }
-
-
-+ Response 202 (application/json)
-  + Body
-
-             {
-                 "message": "Name queued for transfer.  The process takes ~1 hour.  You can check the status with `blockstack info`.",
-                 "success": true,
-                 "transaction_hash": "c0d677f9ee681abbed8ca6d231bc4ece517c8c6695ce883e5e196b5395402779"
-             }
-
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'success': {
-                              'type': 'boolean'
-                           },
-                           'transaction_hash': {
-                               'type': 'string',
-                               'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
-## Publish zone file [POST /v1/names/zonefile]
-Publish the zonefile which has _already_ been announced.
-Submit either as a string with the 'zonefile' property, or
-as a base64 encoded blob with the 'zonefile_b64' property.
-We recommend base64-encoding your zone files in order to guarantee that they
-will be JSON-encodable. 
-
-+ DEPRECATED.
-+ Request (application/json)
-  + Schema
-
-                      {
-                        'type': 'object',
-                        'properties': {
-                            "zonefile": {
-                                'type': 'string',
-                            },
-                            "zonefile_b64": {
-                                'type': 'string',
-                            }
-                        },
-                        'additionalProperties': False,
-                       }
-
-+ Response 200 (application/json)
-  + Body
-
-                {'success': true, 'servers' : ['...']}
-
-
-## Set zone file [PUT /v1/names/{name}/zonefile]
-Sets the user's zonefile hash, and, if supplied, propagates the
-zonefile. If you supply the zonefile, the hash will be calculated from
-that. Ultimately, your requests should only supply one of `zonefile`,
-`zonefile_b64`, or `zonefile_hash`.
-
-The value for `zonefile_b64` is a base64-encoded string.
-New clients _should_ use the `zonefile_b64` field when specifying a zone file.
-The `zonefile` field is preserved for legacy compatibility.
-
-This API call issues a `NAME_UPDATE` transaction for a name that is owned by
-this node's wallet.  That is, you can only call this API method if your node
-owns the name you're updating.
-
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) for generating
-transactions.
-+ Authorization: `update`
-+ Legacy Endpoint
-+ Parameters
-  + name: bar.test (string) - fully-qualified name
-+ Request (application/json)
-  + Schema
-
-                      {
-                        'type': 'object',
-                        'properties': {
-                            "zonefile": {
-                                'type': 'string',
-                            },
-                            'zonefile_b64': {
-                                'type': 'string',
-                                'pattern': r'^((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4}))$'
-                            },
-                            'zonefile_hash': {
-                                'type': 'string',
-                                'pattern': '^([0-9a-fA-F]{20})$'
-                            },
-                            'tx_fee': {
-                                'type': 'integer',
-                                'minimum': 0,
-                                'maximum': 500000
-                            },
-                            'owner_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            },
-                            'payment_key': {
-                                'anyOf': [
-                                    {
-                                        'anyOf': [
-                                            {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        'properties': {
-                                            'address': {
-                                                'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                'type': 'string'
-                                            },
-                                            'private_keys': {
-                                                'items': {
-                                                    'anyOf': [
-                                                        {
-                                                            'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
-                                                            'type': 'string'
-                                                        },
-                                                        {
-                                                            'pattern': '^([0-9a-fA-F]+)$',
-                                                            'type': 'string'
-                                                        }
-                                                    ]
-                                                },
-                                                'type': 'array'
-                                            },
-                                            'redeem_script': {
-                                                'pattern': '^([0-9a-fA-F]+)$',
-                                                'type': 'string'
-                                            }
-                                        },
-                                        'required': [
-                                            'owner'
-                                        ],
-                                        'type': 'object'
-                                    }
-                                ]
-                            }
-                        },
-                        'additionalProperties': False,
-                    }
-
-+ Response 202 (application/json)
-  + Body
-
-                {'success': true, 'transaction_hash' : '...'}
-  + Schema
-
-            {
-              'anyOf': [
-                {
-                      'type': 'object',
-                      'properties': {
-                           'success': {
-                              'type': 'boolean'
-                           },
-                           'transaction_hash': {
-                               'type': 'string',
-                               'pattern': r'^([0-9a-fA-F]+)$',
-                           },
-                      },
-                },
-                {
-                    'type': 'object',
-                    'properties': {
-                        'error': {
-                            'type': 'string',
-                        },
-                    },
-                },
-              ],
-            }
-
 ## Fetch zone file [GET /v1/names/{name}/zonefile]
+
 Fetch a user's raw zone file.  This only works for RFC-compliant zone files.
 This method returns an error for names that have non-standard zone files.
 
++ Public Endpoint
 + Parameters
   + name: bar.test (string) - fully-qualified name
 + Response 200 (application/json)
   + Body
 
-               {
-                   "zonefile": "$ORIGIN bar.test\n$TTL 3600\n_https._tcp URI 10 1 \"https://blockstack.s3.amazonaws.com/bar.test\"\n"
-               }
+            {
+                "zonefile": "$ORIGIN bar.test\n$TTL 3600\n_https._tcp URI 10 1 \"https://gaia.blockstack.org/hub/17Zijx61Sp7SbVfRTdETo7PhizJHYEUxbY/profile.json\"\n"
+            }
 
   + Schema
 
@@ -1746,7 +75,36 @@ This method returns an error for names that have non-standard zone files.
                 ]
             }
 
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid name or subdomain" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "No zone file for name" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
 # Group Name Querying
+
 This family of API endpoints deals with querying name information.
 
 ## Get all names [GET /v1/names?page={page}]
@@ -1768,9 +126,24 @@ Fetch a list of all names known to the node.
                  'type': 'array',
                  'items': {
                        'type': 'string',
-                       'pattern': r'^([a-z0-9\\-_.+]{3,37})$',
+                       'pattern': '^([a-z0-9\\-_.+]{3,37})$',
                  }
               }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid page" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
 
 ## Get all subdomains [GET /v1/subdomains?page={page}]
 Fetch a list of all names known to the node.
@@ -1781,7 +154,7 @@ Fetch a list of all names known to the node.
 + Response 200 (application/json)
   + Body
 
-                [
+                [ ...
                   "collegeinfogeek.verified.podcast",
                   "collider.verified.podcast",
                   "combatandclassics.verified.podcast",
@@ -1797,9 +170,23 @@ Fetch a list of all names known to the node.
                  'type': 'array',
                  'items': {
                        'type': 'string',
-                       'pattern': r'^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$',
+                       'pattern': '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$',
                  }
               }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid page" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
 
 ## Get name info [GET /v1/names/{name}]
 + Public Endpoint
@@ -1810,13 +197,16 @@ Fetch a list of all names known to the node.
   + Body
 
               {
-              "address": "1QJQxDas5JhdiXhEbNS14iNjr8auFT96GP", 
-              "blockchain": "bitcoin", 
-              "expire_block": 489247, 
-              "last_txid": "1edfa419f7b83f33e00830bc9409210da6c6d1db60f99eda10c835aa339cad6b", 
-              "status": "registered", 
-              "zonefile": "$ORIGIN muneeb.id\n$TTL 3600\n_http._tcp IN URI 10 1 \"https://blockstack.s3.amazonaws.com/muneeb.id\"\n", 
-              "zonefile_hash": "b100a68235244b012854a95f9114695679002af9"
+                "address": "1J3PUxY5uDShUnHRrMyU6yKtoHEUPhKULs",
+                "blockchain": "bitcoin",
+                "expire_block": 599266,
+                "grace_period": false,
+                "last_txid": "1edfa419f7b83f33e00830bc9409210da6c6d1db60f99eda10c835aa339cad6b",
+                "renewal_deadline": 604266,
+                "resolver": null,
+                "status": "registered",
+                "zonefile": "$ORIGIN muneeb.id\n$TTL 3600\n_http._tcp IN URI 10 1 \"https://gaia.blockstack.org/hub/1J3PUxY5uDShUnHRrMyU6yKtoHEUPhKULs/0/profile.json\"\n",
+                "zonefile_hash": "37aecf837c6ae9bdc9dbd98a268f263dacd00361"
               }
 
   + Schema
@@ -1826,7 +216,7 @@ Fetch a list of all names known to the node.
                  'properties': {
                    'address': {
                        'type': 'string',
-                       'pattern': r"^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$", 
+                       'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
                    },
                    'blockchain': {
                        'type': 'string',
@@ -1836,9 +226,16 @@ Fetch a list of all names known to the node.
                        'type': 'integer',
                        'minimum': 0,
                    },
+                   'grace_period': {
+                       'type': 'integer',
+                       'minimum': 0,
+                   },
                    'last_txid': {
                        'type': 'string',
                        'pattern': '^[0-9a-fA-F]+$',
+                   },
+                   'resolver': {
+                        'type': 'string',
                    },
                    'status': {
                        'type': 'string',
@@ -1864,41 +261,70 @@ Fetch a list of all names known to the node.
                        'pattern': '^[0-9a-fA-F]{20}$`,
                    },
                  },
-                 { 'required': 
+                 { 'required':
                    [
                      'address', 'blockchain', 'last_txid',
                      'status', 'zonefile', 'zonefile_hash'
                    ]
                  }
                }
-                
-## Name history [GET /v1/names/{name}/history]
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid name or subdomain" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "No such name" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get name history [GET /v1/names/{name}/history?page={page}]
 Get a history of all blockchain records of a registered name.
 + Public Endpoint
 + Subdomain aware
 + Parameters
   + name: muneeb.id (string) - name to query
+  + page: 0 (integer) - the page (in 20-entry pages) of the history to fetch
 + Response 200 (application/json)
   + Body
 
             {
               "373821": [
                 {
-                  "address": "1QJQxDas5JhdiXhEbNS14iNjr8auFT96GP", 
-                  "block_number": 373821, 
-                  "consensus_hash": null, 
-                  "first_registered": 373821, 
-                  "importer": "76a9143e2b5fdd12db7580fb4d3434b31d4fe9124bd9f088ac", 
-                  "importer_address": "16firc3qZU97D1pWkyL6ZYwPX5UVnWc82V", 
-                  "last_creation_op": ";", 
-                  "last_renewed": 373821, 
-                  "name": "muneeb.id", 
-                  "name_hash128": "deb7fe99776122b77925cbf0a24ab6f8", 
-                  "namespace_block_number": 373601, 
-                  "namespace_id": "id", 
-                  "op": ";", 
-                  "op_fee": 100000.0, 
-                  "opcode": "NAME_IMPORT", 
+                  "address": "1QJQxDas5JhdiXhEbNS14iNjr8auFT96GP",
+                  "block_number": 373821,
+                  "consensus_hash": null,
+                  "first_registered": 373821,
+                  "importer": "76a9143e2b5fdd12db7580fb4d3434b31d4fe9124bd9f088ac",
+                  "importer_address": "16firc3qZU97D1pWkyL6ZYwPX5UVnWc82V",
+                  "last_creation_op": ";",
+                  "last_renewed": 373821,
+                  "name": "muneeb.id",
+                  "name_hash128": "deb7fe99776122b77925cbf0a24ab6f8",
+                  "namespace_block_number": 373601,
+                  "namespace_id": "id",
+                  "op": ";",
+                  "op_fee": 100000.0,
+                  "opcode": "NAME_IMPORT",
                   "preorder_block_number": 373821,
                  }
                ]
@@ -1916,7 +342,7 @@ Get a history of all blockchain records of a registered name.
                     'properties': {
                         'address': {
                             'type': 'string',
-                            'pattern': r"^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$", 
+                            'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
                         },
                         'base': {
                             'type': 'integer',
@@ -1965,6 +391,10 @@ Get a history of all blockchain records of a registered name.
                                 },
                             ],
                         },
+                        'domain': {
+                            'type': 'string',
+                            'pattern': '^([a-z0-9\\-_.+]{3,37})$',
+                        },
                         'fee': {
                             'type': 'integer',
                             'minimum': 0,
@@ -1980,7 +410,7 @@ Get a history of all blockchain records of a registered name.
                             'anyOf': [
                                 {
                                     'type': 'string',
-                                    'pattern': r'^76[aA]914[0-9a-fA-F]{40}88[aA][cC]$',
+                                    'pattern': '^76[aA]914[0-9a-fA-F]{40}88[aA][cC]$',
                                 },
                                 {
                                     'type': 'null',
@@ -1991,7 +421,7 @@ Get a history of all blockchain records of a registered name.
                             'anyOf': [
                                 {
                                     'type': 'string',
-                                    'pattern': r"^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$", 
+                                    'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
                                 },
                                 {
                                     'type': 'null',
@@ -2001,6 +431,10 @@ Get a history of all blockchain records of a registered name.
                         'last_renewed': {
                             'type': 'integer',
                             'minimum': 0,
+                        },
+                        'name': {
+                            'type': 'string',
+                            'pattern': '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$',
                         },
                         'op': {
                             'type': 'string',
@@ -2031,6 +465,10 @@ Get a history of all blockchain records of a registered name.
                                 },
                             ],
                         },
+                        'sequence': {
+                            'type': 'integer',
+                            'minimum': 0
+                        }
                         'recipient': {
                             'anyOf': [
                                 {
@@ -2085,16 +523,135 @@ Get a history of all blockchain records of a registered name.
                         },
                     },
                     'required': [
-                        'op',
-                        'opcode',
                         'txid',
                         'vtxindex'
                     ],
                   }
-               }
+                }
               }
             }
 
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid page" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "No such name" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get subdomains at transaction [GET /v1/subdomains/{txid}]
+Fetches the list of subdomain operations processed by a given transaction.
+The returned array includes subdomain operations that have not yet been accepted
+as part of any subdomain's history (checkable via the `accepted` field).  If the
+given transaction ID does not correspond to a Blockstack transaction that
+introduced new subdomain operations, and empty array will be returned.
+
++ Public Endpoint
++ Subdomain aware
++ Parameters
+  + txid: d04d708472ea3c147f50e43264efdb1535f71974053126dc4db67b3ac19d41fe (string) the transaction ID
++ Response 200 (application/json)
+  + Body
+
+            [
+              {
+                "accepted": 1,
+                "block_height": 546199,
+                "domain": "id.blockstack",
+                "fully_qualified_subdomain": "nturl345.id.blockstack",
+                "missing": "",
+                "owner": "17Q8hcsxRLCk3ypJiGeXQv9tFK9GnHr5Ea",
+                "parent_zonefile_hash": "58224144791919f6206251a9960a2dd5723b96b6",
+                "parent_zonefile_index": 95780,
+                "resolver": "https://registrar.blockstack.org",
+                "sequence": 0,
+                "signature": "None",
+                "txid": "d04d708472ea3c147f50e43264efdb1535f71974053126dc4db67b3ac19d41fe",
+                "zonefile_hash": "d3bdf1cf010aac3f21fac473e41450f5357e0817",
+                "zonefile_offset": 0
+              },
+              {
+                "accepted": 1,
+                "block_height": 546199,
+                "domain": "id.blockstack",
+                "fully_qualified_subdomain": "dwerner1.id.blockstack",
+                "missing": "",
+                "owner": "17tFeKEBMUAAiHVsCgqKo8ccwYqq7aCn9X",
+                "parent_zonefile_hash": "58224144791919f6206251a9960a2dd5723b96b6",
+                "parent_zonefile_index": 95780,
+                "resolver": "https://registrar.blockstack.org",
+                "sequence": 0,
+                "signature": "None",
+                "txid": "d04d708472ea3c147f50e43264efdb1535f71974053126dc4db67b3ac19d41fe",
+                "zonefile_hash": "ab79b1774fa7a4c5709b6ad4e5892fb7c0f79765",
+                "zonefile_offset": 1
+              }
+            ]
+
+  + Schema
+
+            {
+              'type': 'array',
+              'items': {
+                'type': 'object',
+                'properties': {
+                   'accepted': { 'type': 'integer', 'minimum': 0, 'maximum': 1 },
+                   'block_height': { 'type': 'integer', 'minimum': 0 },
+                   'domain': { 'type': 'string', 'pattern': '^([a-z0-9\\-_.+]{3,37})$|^([a-z0-9\\-_.+]){3,37}$' },
+                   'fully_qualified_subdomain: { 'type': 'string', 'pattern': '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$' },
+                   'missing': { 'type': 'string' },
+                   'owner': { 'type': 'string', 'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$" },
+                   'parent_zonefile_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{40}' },
+                   'parent_zonefile_index': { 'type': 'integer', 'minimum': 0 },
+                   'resolver': { 'type': 'string' },
+                   'sequence': { 'type': 'integer', 'minimum': 0 },
+                   'signature': { 'type': 'string' },
+                   'txid': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{64}' },
+                   'zonefile_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{40}' },
+                   'zonefile_offset': { 'type': 'integer', 'minimum': 0 }
+                },
+                'required': [ 'accepted, 'block_height, 'domain',
+                              'fully_qualified_subdomain', 'missing', 'owner',
+                              'parent_zonefile_hash', 'parent_zonefile_index', 'resolver',
+                              'sequence', 'signature', 'txid', 'zonefile_hash',
+                              'zonefile_offset' ]
+               }
+            }
+    
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid txid" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+    
 ## Get historical zone file [GET /v1/names/{name}/zonefile/{zoneFileHash}]
 Fetches the historical zonefile specified by the username and zone hash.
 + Public Endpoint
@@ -2105,10 +662,9 @@ Fetches the historical zonefile specified by the username and zone hash.
 + Response 200 (application/json)
   + Body
 
-             {
-               "zonefile": 
-               "$ORIGIN muneeb.id\n$TTL 3600\n_http._tcp IN URI 10 1 \"https://blockstack.s3.amazonaws.com/muneeb.id\"\n"
-             }
+               {
+                 "zonefile": "$ORIGIN muneeb.id\n$TTL 3600\n_http._tcp IN URI 10 1 \"https://blockstack.s3.amazonaws.com/muneeb.id\"\n"
+               }
 
   + Schema
 
@@ -2129,6 +685,34 @@ Fetches the historical zonefile specified by the username and zone hash.
                    ],
                }
 
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid name or subdomain" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "No such zonefile" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
 ## Get names owned by address [GET /v1/addresses/{blockchain}/{address}]
 Retrieves a list of names owned by the address provided.
 + Subdomain Aware
@@ -2140,9 +724,9 @@ Retrieves a list of names owned by the address provided.
 + Response 200 (application/json)
   + Body
 
-                {
-                    "names": ["muneeb.id"]
-                }
+               {
+                   "names": ["muneeb.id"]
+               }
 
    + Schema
 
@@ -2154,17 +738,32 @@ Retrieves a list of names owned by the address provided.
                            'items': {
                                'type': 'string',
                                'pattern': '^([a-z0-9\-_.+]{3,37})$',
-                           },
-                       },
-                   },
+                           }
+                       }
+                   }
                }
 
-# Group Price Checks
-## Get namespace price [GET /v1/prices/namespaces/{tld}]
++ Response 404 (application/json)
+  + Body
 
-This endpoint is used to get the price of a namespace.  Anyone can create a
-namespace by following [this
-tutorial](https://github.com/blockstack/blockstack-core/blob/master/docs/namespace_creation.md).
+            { "error": "Unsupported blockchain" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+# Group Price Checks
+
+## Get namespace price [GET /v2/prices/namespaces/{tld}]
+
+This endpoint is used to get the price of a namespace, while explicitly
+indicating the cryptocurrency units.  This is because going forward, namespaces
+are not necessarily priced in Bitcoin.
 
 + Public Endpoint
 + Parameters
@@ -2173,7 +772,8 @@ tutorial](https://github.com/blockstack/blockstack-core/blob/master/docs/namespa
   + Body
 
              {
-               "satoshis": 4000000000
+               "units": "BTC",
+               "amount": "4000000000"
              }
 
   + Schema
@@ -2181,21 +781,35 @@ tutorial](https://github.com/blockstack/blockstack-core/blob/master/docs/namespa
             {
                 'type': 'object',
                 'properties': {
-                    'satoshis': {
-                        'type': 'integer',
-                        'minimum': 0,
+                    'units': {
+                        'type': 'string',
+                    },
+                    'amount': {
+                        'type': 'string',
+                        'pattern': '^[0-9]+$',
                     },
                 },
+                'required': [ 'units', 'amount' ]
             }
 
-## Get name price [GET /v1/prices/names/{name}]
++ Response 400 (application/json)
+  + Body
 
-This endpoint is used to get the price of a name.  If you are using
-a public endpoint, you should *only* rely on the `name_price` field in the
-returned JSON blob.  Other fields are **DEPRECATED**, since they are relevant
-only for estimating the cost of registering a name (which should be done via
-[blockstack.js](https://github.com/blockstack/blockstack.js) or the [Blockstack
-Browser](https://github.com/blockstack/blockstack-browser)).
+            { "error": "Invalid namespace" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            },
+
+## Get name price [GET /v2/prices/names/{name}]
+
+This endpoint is used to get the price of a name, denoted in a specific
+cryptocurrency (not necessarily Bitcoin).
 
 + Public Endpoint
 + Parameters
@@ -2204,30 +818,10 @@ Browser](https://github.com/blockstack/blockstack-browser)).
   + Body
 
                {
-                        "name_price": {
-                          "satoshis": 100000, 
-                          "btc": 0.001
-                        }, 
-                        "total_tx_fees": 519209, 
-                        "register_tx_fee": {
-                          "satoshis": 159110, 
-                          "btc": 0.0015911
-                        }, 
-                        "preorder_tx_fee": {
-                          "satoshis": 163703, 
-                          "btc": 0.00163703
-                        }, 
-                        "warnings": [
-                          "Insufficient funds; fees are rough estimates."
-                        ], 
-                        "total_estimated_cost": {
-                          "satoshis": 619209, 
-                          "btc": 0.00619209
-                        }, 
-                        "update_tx_fee": {
-                          "satoshis": 196396, 
-                          "btc": 0.00196396
-                        }
+                  "name_price": {
+                    "units": "BTC",
+                    "amount": "100000"
+                  },
                }
 
     + Schema
@@ -2238,60 +832,134 @@ Browser](https://github.com/blockstack/blockstack-browser)).
                        'name_price': {
                            'type': 'object',
                            'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
+                               'units': { 'type': 'string' },
+                               'amount': { 'type': 'string', 'pattern': '^[0-9]+$' }
+                           },
+                           'required': [ 'units', 'amount' ],
                        },
-                       'preorder_tx_fee': {
-                           'type': 'object',
-                           'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
-                       },
-                       'register_tx_fee': {
-                           'type': 'object',
-                           'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
-                       },
-                       'update_tx_fee': {
-                           'type': 'object',
-                           'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
-                       },
-                       'total_estimated_cost': {
-                           'type': 'object',
-                           'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
-                       },
-                       'total_tx_fees': {
-                           'type': 'integer',
-                           'minimum': 0,
-                       }
+                      'required': [ 'name_price' ]
+                   }
+               }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid name" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            },
+
+## Legacy Get namespace price [GET /v1/prices/namespaces/{tld}]
+
+This endpoint is used to get the price of a namespace in Bitcoin.
+
++ Public Endpoint
++ Legacy Endpoint
++ Parameters
+  + tld: id (string) - namespace to query price for
++ Response 200 (application/json)
+  + Body
+
+             {
+               "satoshis": 4000000000,
+               "units": "BTC",
+               "amount": "4000000000"
+             }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'units': {
+                        'type': 'string',
+                    },
+                    'amount': {
+                        'type': 'string',
+                        'pattern': '^[0-9]+$',
+                    },
+                    'satoshis': {
+                        'type': 'integer',
+                        'minimum': 0,
+                    },
+                },
+                'required': [ 'satoshis' ]
+            }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid namepace" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Legacy Get name price [GET /v1/prices/names/{name}]
+
+This endpoint is used to get the price of a name in Bitcoin.
+
++ Public Endpoint
++ Legacy Endpoint
++ Parameters
+    + name: muneeb.id (string) - name to query price information for
++ Response 200 (application/json)
+  + Body
+
+               {
+                  "name_price": {
+                    "satoshis": 100000,
+                    "units": "BTC",
+                    "amount": "100000"
+                  },
+               }
+
+    + Schema
+
+               {
+                   'type': 'object',
+                   'properties': {
                        'name_price': {
                            'type': 'object',
                            'properties': {
-                               'btc': { 'type': 'number', 'minimum': 0 },
-                               'satoshis': { 'type': 'integer', 'minimum': 0 }
-                           }
-                       },
-                       'warnings': {
-                           'type': 'array',
-                           'items': {
-                               'type': 'string',
+                               'satoshis': { 'type': 'integer', 'minimum': 0 },
+                               'units': { 'type': 'string' },
+                               'amount': { 'type': 'string', 'pattern': '^[0-9]+$' }
                            },
+                           'required': [ 'satoshis' ],
                        },
-                   },
+                      'required': [ 'name_price' ]
+                   }
                }
 
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid name" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
 # Group Blockchain Operations
+
 ## Get consensus hash [GET /v1/blockchains/{blockchainName}/consensus]
+
 Get the current Blockstack consensus hash on a blockchain.
 + Public Endpoint
 + Parameters
@@ -2300,23 +968,39 @@ Get the current Blockstack consensus hash on a blockchain.
   + Body
 
                {
-                          "consensus_hash": "2fcbdf66c350894fe03b42c6a2e8a6ac"
+                  "consensus_hash": "2fcbdf66c350894fe03b42c6a2e8a6ac"
                }
+
+  + Schema
+
+               {
+                 'type': 'object',
+                 'properties': {
+                     'consensus_hash': {
+                         'type': 'string',
+                         'pattern': '^[0-9a-fA-F]{32}$`,
+                     },
+                 },
+              }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "Unsupported blockchain" }
 
   + Schema
 
             {
                 'type': 'object',
                 'properties': {
-                    'consensus_hash': {
-                        'type': 'string',
-                        'pattern': '^[0-9a-fA-F]{32}$`,
-                    },
+                    'error': { 'type': 'string' },
                 },
             }
 
-## Get number of names on blockchain [GET /v1/blockchains/{blockchainName}/name_count{?all}]
-Get the number of names on a blockchain.
+## Get total names on blockchain [GET /v1/blockchains/{blockchainName}/name_count{?all}]
+
+Get a count of the number of names on a blockchain.  This does not include
+subdomains.
 + Public Endpoint
 + Parameters
   + blockchainName: bitcoin (string) - the given blockchain
@@ -2340,7 +1024,7 @@ Get the number of names on a blockchain.
                 },
             }
 
-+ Response 401 (application/json)
++ Response 404 (application/json)
   + Body
 
             { "error": "Unsupported blockchain" }
@@ -2355,7 +1039,7 @@ Get the number of names on a blockchain.
             },
 
 
-## Get number of subdomains on blockchain [GET /v1/blockchains/{blockchainName}/subdomains_count]
+## Get total subdomains on blockchain [GET /v1/blockchains/{blockchainName}/subdomains_count]
 Get the number of subdomains on a blockchain.
 + Public Endpoint
 + Parameters
@@ -2379,7 +1063,7 @@ Get the number of subdomains on a blockchain.
                 },
             }
 
-+ Response 401 (application/json)
++ Response 404 (application/json)
   + Body
 
             { "error": "Unsupported blockchain" }
@@ -2395,7 +1079,9 @@ Get the number of subdomains on a blockchain.
 
 
 ## Get operations in block [GET /v1/blockchains/{blockchainName}/operations/{blockHeight}]
+
 Get the Blockstack operations in a given block
++ Public Endpoint
 + Parameters
   + blockchainName : bitcoin (string) - the given blockchain
   + blockHeight : 462592 (integer) - the block height
@@ -2722,214 +1408,263 @@ Get the Blockstack operations in a given block
               }
             ]
 
-## Get pending transactions [GET /v1/blockchains/{blockchainName}/pending]
-Get the current transactions that the node has issued and are still pending.
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to query the
-blockchain.
-+ Public Endpoint
-+ Parameters
-  + blockchainName : bitcoin (string) - the given blockchain
-+ Response 200 (application/json)
+  + Schema
+
+            {
+              'type': 'array',
+              'items': {
+                 'type': 'object',
+                 'properties': {
+                     'address': {
+                         'type': 'string',
+                         'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
+                     },
+                     'base': {
+                         'type': 'integer',
+                         'minimum': 0,
+                         'maximum': 255,
+                     },
+                     'buckets': {
+                         'anyOf': [
+                             {
+                                 'type': 'array',
+                                 'items': {
+                                     'type': 'integer',
+                                     'minItems': 16,
+                                     'maxItems': 16,
+                                 },
+                             },
+                             {
+                                 'type': 'null',
+                             },
+                         ],
+                     },
+                     'block_number': {
+                         'type': 'integer',
+                         'minimum': 0,
+                     },
+                     'coeff': {
+                         'anyOf': [
+                             {
+                                 'type': 'integer',
+                                 'minimum': 0,
+                                 'maximum': 255,
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'consensus_hash': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^[0-9a-fA-F]{32}',
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'domain': {
+                         'type': 'string',
+                         'pattern': '^([a-z0-9\-_.+]{3,37})$',
+                     },
+                     'fee': {
+                         'type': 'integer',
+                         'minimum': 0,
+                     },
+                     'first_registered': {
+                         'type': 'integer',
+                         'minimum': 0,
+                     },
+                     'history_snapshot': {
+                         'type': 'boolean',
+                     },
+                     'importer': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^76[aA]914[0-9a-fA-F]{40}88[aA][cC]$',
+                             },
+                             {
+                                 'type': 'null',
+                             },
+                         ],
+                     },
+                     'importer_address': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
+                             },
+                             {
+                                 'type': 'null',
+                             },
+                         ],
+                     },
+                     'last_renewed': {
+                         'type': 'integer',
+                         'minimum': 0,
+                     },
+                     'name': {
+                         'type': 'string',
+                         'pattern': '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$',
+                     },
+                     'op': {
+                         'type': 'string',
+                         'pattern': '^([>?+~:!&*:;#]{1}|>>|>~|::)$',
+                     },
+                     'op_fee': {
+                         'type': 'number',
+                     },
+                     'opcode': {
+                         'type': 'string',
+                         'pattern': '^NAME_TRANSFER|NAME_PREORDER|NAME_UPDATE|NAME_REVOKE|NAME_REGISTRATION|NAMESPACE_READY|NAMESPACE_REVEAL|NAMESPACE_PREORDER|NAME_RENEWAL|NAME_IMPORT|ANNOUNCE$'
+                     },
+                     'revoked': {
+                         'type': 'boolean',
+                     },
+                     'sender': {
+                         'type': 'string',
+                         'pattern': '^([0-9a-fA-F]+)$',
+                     },
+                     'sender_pubkey': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^([0-9a-fA-F]+)$',
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'sequence': {
+                         'type': 'integer',
+                         'minimum': 0
+                     }
+                     'recipient': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^([0-9a-fA-F]+)$',
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'recipient_address': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$',
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'recipient_pubkey': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^([0-9a-fA-F]+)$',
+                             },
+                             {
+                                 'type': 'null'
+                             },
+                         ],
+                     },
+                     'txid': {
+                         'type': 'string',
+                         'pattern': '^([0-9a-fA-F]+)$',
+                     },
+                     'value_hash': {
+                         'anyOf': [
+                             {
+                                 'type': 'string',
+                                 'pattern': '^([0-9a-fA-F]{40})$',
+                             },
+                             {
+                                 'type': 'null',
+                             },
+                         ],
+                     },
+                     'vtxindex': {
+                         'type': 'integer',
+                         'minimum': 0,
+                     },
+                 },
+                 'required': [
+                     'txid',
+                     'vtxindex'
+                 ],
+                }
+              }
+            }
+
++ Response 400 (application/json)
   + Body
 
-               {
-                          "queues": {}
-               }
+            { "error": "Invalid name or subdomain" }
 
   + Schema
 
             {
                 'type': 'object',
                 'properties': {
-                    'preorder': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'register': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'update': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'transfer': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'renew': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'revoke': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                    'name_import': {
-                        'type': 'array',
-                        'items': {
-                            'type': 'object',
-                            'properties': {
-                                'name': { 'type': 'string', 'pattern': '^([a-z0-9\-_.+]{3,37})$' },
-                                'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                'confirmations': { 'type': 'integer', 'minimum': 0 },
-                            },
-                        },
-                    },
-                }
+                    'error': { 'type': 'string' },
+                },
             }
 
-## Get unspent outputs [GET /v1/blockchains/{blockchainName}/{address}/unspent]
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to query the
-blockchain.
-+ Authorization: `blockchain`
-+ Parameters
-  + blockchainName : bitcoin (string) - the given blockchain
-  + address :  1GuKR3nJi2VH3E1ZSPvuX8nAu3jNnr7xzq (string) - the address to get unspents for
-+ Response 200 (application/json)
++ Response 404 (application/json)
   + Body
 
-               [
-                          {
-                              "confirmations": 18,
-                              "out_script": "76a914ae6ee3760fccb8225541ca89f08c927930adf97b88ac",
-                              "outpoint": {
-                                  "hash": "977d3a025790e2cbdb50f63761872f36e78fbb9c53d515cb4c53155a1964932d",
-                                  "index": 1
-                              },
-                              "transaction_hash": "977d3a025790e2cbdb50f63761872f36e78fbb9c53d515cb4c53155a1964932d",
-                              "value": 76779
-                          }
-               ]
+            { "error": "No such name" }
 
-   + Schema
-
-               {
-                   'type': 'array',
-                   'items': {
-                       'type': 'object',
-                       'properties': {
-                           'confirmations': { 'type': 'integer', 'minimum': 0 },
-                           'out_script': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                           'outpoint': {
-                               'type': 'object',
-                               'properties': {
-                                   'hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                                   'index': { 'type': 'integer', 'minimum': 0 },
-                               },
-                           },
-                           'transaction_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                           'value': { 'type': 'integer', 'minimum': 0 },
-                       },
-                   },
-               }
-
-## Broadcast transaction [POST /v1/blockchains/{blockchainName}/txs]
-+ DEPRECATED.  Blockstack clients should use
-  [blockstack.js](https://github.com/blockstack/blockstack.js) to broadcast
-transactions.
-+ Authorization: `blockchain`
-+ Parameters
-  + blockchainName : bitcoin (string) - the blockchain to broadcast on
-+ Request (application/json)
   + Schema
-        
-                              {
-                                  'type': 'object',
-                                  'properties': {
-                                      'tx': {
-                                          'type': 'string',
-                                          'pattern': OP_HEX_PATTERN,
-                                      },
-                                  },
-                                  'additionalProperties': False,
-                                  'required': [
-                                      'tx'
-                                  ],
-                              }
 
-+ Response 200 (application/json)
-  + Body
-  
-               { 'status' : True, 'tx_hash' : '...' }
-
- + Schema
-
-               {
-                   'anyOf': [
-                       {
-                           'type': 'object',
-                           'properties': {
-                               'status': { 'type': 'boolean' },
-                               'tx_hash': { 'type': 'string', 'pattern': '^[0-9a-fA-F]+$' },
-                           },
-                       },
-                       {
-                           'type': 'object',
-                           'properties': {
-                               'error': { 'type': 'string' },
-                           },
-                       },
-                   ]
-               }
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
 
 # Group Namespace Operations
+
 ## Get all namespaces [GET /v1/namespaces]
 + Public Endpoint
 + Response 200 (application/json)
   + Body
 
-               {
-                 "namespaces": [
-                   ".id"
-                 ] 
-               }
+            {
+              "namespaces": [
+                "id",
+                "helloworld",
+                "podcast",
+                "graphite",
+                "blockstack"
+              ]
+            }
 
+  + Schema
+
+            {
+               'type': 'object',
+               'properties': {
+                  'namespaces': {
+                     'type': 'array',
+                     'items': { 'type': 'string' }
+                  }
+               },
+               'required': [ 'namespaces' ]
+            }
+                     
 ## Get namespace names [GET /v1/namespaces/{tld}/names?page={page}]
+
 Fetch a list of names from the namespace.
 + Public Endpoint
 + Parameters
@@ -2939,24 +1674,407 @@ Fetch a list of names from the namespace.
 + Response 200 (application/json)
   + Body
 
-               [ "aldenquimby.id", "aldeoryn.id", 
-                 "alderete.id", "aldert.id", 
+               [ "aldenquimby.id", "aldeoryn.id",
+                 "alderete.id", "aldert.id",
                  "aldi.id", "aldighieri.id", ... ]
 
+  + Schema
+
+               {
+                  'type': 'array',
+                  'items': { 
+                     'type': 'string',
+                     'pattern': '^([a-z0-9\-_.+]{3,37})$'
+                  }
+               }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid page" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "No such namespace" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+# Group Account Operations
+
+The set of methods in this section correspond to querying the states of
+Blockstack token accounts.  Each token account is represented by an account
+address, which is a [Crockford base-32](https://en.wikipedia.org/wiki/Base32#Crockford's_Base32)
+encoding of the RIPEMD160 hash of the SHA256 hash of one or more keys,
+plus a version byte and a 4-byte SHA256 checksum.
+Internally, Blockstack account addresses are generated and represented in the
+same way as p2pkh and p2sh Bitcoin addresses -- that is, a Blockstack account addresses
+are in 1-to-1 correspondance with Bitcoin addresses (Blockstack account addresses
+simply use a different encoding alphabet).
+We have a [reference library](http://github.com/blockstack/c32check) for
+helping developers generate and convert between Bitcoin and Blockstack addresses.
+
+Right now, an account can only own Stacks tokens (designiated in the API
+as having a toke type `STACKS`).  However, in the future
+Blockstack may be upgraded to support owning many different kinds of
+app-specific tokens.  The API presented here is designed to accomodate this
+possible development.
+
+## Get account status [GET /v1/accounts/{address}/{tokenType}/status]
+
+Get the status of an account's current token allocation.  The current number of
+tokens held by the account's address is equal to the difference between the
+`credit_value` and `debit_value`.  These two numbers always increase and are
+accounted in the smallest possible unit of the token type (e.g. microStacks for
+the `STACKS` token).  Programs that parse these values should be aware of this,
+and should use an appropriate numeric representation like `BigInteger` when
+parsing them.
+
+The last transaction's ID (`txid`) and transaction offset (`vtxindex`) are given.
+If `vtxindex` is 0, then the transaction ID corresponds to a "sentinal" transaction
+in Blockstack Core that indicates tokens getting generated or unlocked.  These
+transaction IDs will not appear in any block explorer, since they do not correspond
+to "real" transactions.
+
++ Public Endpoint
+* Parameters
+  + address: SP1T1F14QX4KZYFZH8A5286Z4AK9S7GY93KZ4ZZD7 (string) - address to query.  Can be either a base58check address or a c32check address
+  + tokenType: STACKS (string) - type of token to query (only `STACKS` is
+    supported right now).
++ Response 200 (application/json)
+  + Body
+
+            {
+              "address": "1BaqZJqwt2dcdxt6oa3mwSK4DiEyfXCgnZ",
+              "block_id": 589689,
+              "credit_value": "100000000000",
+              "debit_value": "6400000000",
+              "lock_transfer_block_id": 0,
+              "txid": "65e99765cb332b1026049527ecf297223612a12cd6adec9aeb555105f655428b",
+              "type": "STACKS",
+              "vtxindex": 1
+            }
+
+  + Schema
+
+            {
+              'type': 'object',
+              'properties': {
+                 'address': {
+                    'type': 'string',
+                    'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
+                 },
+                 'block_id': { 'type': 'integer', 'minimum': 0 },
+                 'credit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                 'debit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                 'lock_transfer_block_id': { 'type': 'integer', 'minimum': 0 },
+                 'txid': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{64}$' },
+                 'type': { 'type': 'string' },
+                 'vtxindex': { 'type': 'integer', 'minimum': 0 }
+              },
+              'required': [ 'address, 'block_id', 'credit_value', 'debit_value', 
+                            'lock_transfer_block_id', 'txid', 'type', 'vtxindex' ]
+            }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid address" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            { "error": "Failed to get account record for STACKS ST3S24N1NK9JVGK6T06PR3E6HE7SBAH7VSG6C950F: No such account"}
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get account tokens [GET /v1/accounts/{address}/tokens]
+
+Get the types of tokens held by a particular account, given its address.  For
+now, this can only be `STACKS` tokens.
+
++ Public Endpoint
+* Parameters
+  + address: SP1T1F14QX4KZYFZH8A5286Z4AK9S7GY93KZ4ZZD7 (string) - address to query.  Can be either a base58check address or a c32check address
++ Response 200 (application/json)
+  + Body
+
+            {
+              "tokens": [
+                  "STACKS"
+              ]
+            }
+
+  + Schema
+
+            {
+              'type': 'object',
+              'properties': {
+                'tokens': {
+                   'type': 'array',
+                   'items': { 'type': 'string' }
+                },
+                'required': [ 'tokens' ]
+              }
+            }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid address" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get account balance [GET /v1/accounts/{address}/{tokenType}/balance]
+
+Get the number of tokens held by a particular account, given the account's
+address and the token type.
+
+Note that the value returned by this endpoint can be very large, since the token
+balances are integers that represent the number of smallest units of the token
+(e.g. microStacks for the `STACKS` token).
+
+This endpoint returns a zero balance for accounts and token types that do not
+exist.
+
++ Public Endpoint
++ Parameters
+  + address: SP1T1F14QX4KZYFZH8A5286Z4AK9S7GY93KZ4ZZD7 (string) - address to query.  Can be either a base58check address or a c32check address
+  + tokenType: STACKS (string) - type of token to query (only `STACKS` is
+    supported right now).
++ Response 200 (application/json)
+  + Body
+
+            {
+              "balance": "936000000"
+            }
+
+  + Schema
+
+            {
+              'type': 'object',
+              'properties': {
+                 'balance' { 'type': 'string', 'pattern': '^[0-9+]$' }
+              }
+              'required': [ 'balance' ]
+            }
+     
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid address" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get account history [GET /v1/accounts/{address}/history?page={pageNum}]
+
+Get a page of an account's transaction history.  Each entry in the history
+corresponds to the status of the account at a particular transaction.
+The history will be returned in reverse order -- the first item will be the
+latest transaction.
+
+Queries on addresses that do not correspond to an existing account will simply
+return an empty list.
+
++ Public Endpoint
++ Parameters
+  + address: SP1T1F14QX4KZYFZH8A5286Z4AK9S7GY93KZ4ZZD7 (string) - address to query.  Can be either a base58check address or a c32check address
+  + pageNum: 0 (integer) - page of the history to query
++ Response 200 (application/json)
+  + Body
+
+            [
+              {
+                "address": "1BaqZJqwt2dcdxt6oa3mwSK4DiEyfXCgnZ",
+                "block_id": 589689,
+                "credit_value": "100000000000",
+                "debit_value": "6400000000",
+                "lock_transfer_block_id": 0,
+                "txid": "65e99765cb332b1026049527ecf297223612a12cd6adec9aeb555105f655428b",
+                "type": "STACKS",
+                "vtxindex": 1
+              },
+              {
+                "address": "1BaqZJqwt2dcdxt6oa3mwSK4DiEyfXCgnZ",
+                "block_id": 589688,
+                "credit_value": "100000000000",
+                "debit_value": "0",
+                "lock_transfer_block_id": 0,
+                "txid": "c28d44fde97dbe59856fa62a4aa99b49c37291577a3e664621a6f03c77c08f47",
+                "type": "STACKS",
+                "vtxindex": 0
+              }
+            ]
+
+  + Schema
+
+            {
+              'type': 'array'
+              'items': {
+                 'type': 'object',
+                 'properties': {
+                    'address': {
+                       'type': 'string',
+                       'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
+                    },
+                    'block_id': { 'type': 'integer', 'minimum': 0 },
+                    'credit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                    'debit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                    'lock_transfer_block_id': { 'type': 'integer', 'minimum': 0 },
+                    'txid': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{64}$' },
+                    'type': { 'type': 'string' },
+                    'vtxindex': { 'type': 'integer', 'minimum': 0 }
+                 },
+                 'required': [ 'address, 'block_id', 'credit_value', 'debit_value', 
+                               'lock_transfer_block_id', 'txid', 'type', 'vtxindex' ]
+               }
+            }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid address" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
+## Get account statuses at block [GET /v1/accounts/{address}/history/{blockNum}]
+
+Get the status(es) of an account at a particular block height.  If the account
+was affected by a transaction at the given block height, the states the
+account passed through will be returned (i.e. at least two entries).  If the
+account was not affected at this block height, then the last state the account
+was in at that block height will be returned.
+
+If there is more than one state, then the states will be listed in reverse order
+chronologically, with the latest state as the first entry.
+
+If the account does not exist, then an empty list will be returned.
+
++ Public Endpoint
++ Parameters
+  + address: SP1T1F14QX4KZYFZH8A5286Z4AK9S7GY93KZ4ZZD7 (string) - address to query.  Can be either a base58check address or a c32check address
+  + blockNum: 589688 (integer) - page of the history to query
++ Response 200 (application/json)
+  + Body
+
+            [
+              {
+                "address": "1BaqZJqwt2dcdxt6oa3mwSK4DiEyfXCgnZ",
+                "block_id": 589688,
+                "credit_value": "100000000000",
+                "debit_value": "0",
+                "lock_transfer_block_id": 0,
+                "txid": "c28d44fde97dbe59856fa62a4aa99b49c37291577a3e664621a6f03c77c08f47",
+                "type": "STACKS",
+                "vtxindex": 0
+              }
+            ]
+
+  + Schema
+
+            {
+              'type': 'array'
+              'items': {
+                 'type': 'object',
+                 'properties': {
+                    'address': {
+                       'type': 'string',
+                       'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$",
+                    },
+                    'block_id': { 'type': 'integer', 'minimum': 0 },
+                    'credit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                    'debit_value': { 'type': 'string', 'pattern': '^[0-9]+$' },
+                    'lock_transfer_block_id': { 'type': 'integer', 'minimum': 0 },
+                    'txid': { 'type': 'string', 'pattern': '^[0-9a-fA-F]{64}$' },
+                    'type': { 'type': 'string' },
+                    'vtxindex': { 'type': 'integer', 'minimum': 0 }
+                 },
+                 'required': [ 'address, 'block_id', 'credit_value', 'debit_value', 
+                               'lock_transfer_block_id', 'txid', 'type', 'vtxindex' ]
+               }
+            }
+
++ Response 400 (application/json)
+  + Body
+
+            { "error": "Invalid address" }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                    'error': { 'type': 'string' },
+                },
+            }
+
 # Group Resolver Endpoints
+
 ## Lookup User [GET /v1/users/{username}]
-Lookup and resolver a user's profile. Defaults to the `id` namespace.
+Lookup and resolve a user's profile. Defaults to the `id` namespace.
 Note that [blockstack.js](https://github.com/blockstack/blockstack.js) does
 *not* rely on this endpoint.
 
-+ Public Only Endpoint
++ Public Endpoint
 + Subdomain Aware
 + Legacy Endpoint
 + Parameters
   + username: fred (string) - username to lookup
 + Response 200 (application/json)
-
-
 
                {
                  "fred.id": {
@@ -3008,6 +2126,58 @@ Note that [blockstack.js](https://github.com/blockstack/blockstack.js) does
                  }
                }
 
+  + Schema
+
+            {
+                'type': 'object',
+                'patternProperties': {
+                    '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$|^([a-z0-9\\-_.+]){3,37}$': {
+                      'type': 'object',
+                      'properties': {
+                           'owner_address': { 'type': 'string', 'pattern': "^([123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz]+)$" },
+                           'profile' : { 'type': 'object' },
+                           'public_key': { 'type': 'string', 'pattern': "^([0-9a-fA-F]$" },
+                           'verifications: { 
+                              'type': 'array', 
+                              'items': {
+                                 'type': 'object',
+                                 'properties': {
+                                    'identifier': { 'type': 'string' },
+                                    'proof_url': { 'type': 'string' },
+                                    'service': { 'type': 'string' },
+                                    'valid': { 'type': 'boolean' }
+                                 },
+                              }
+                           },
+                           'zone-file': { 'type': 'object' }
+                       }
+                    }
+                 }
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            {
+              "nope.none": {
+                "error": "Name has no user record hash defined"
+              }
+            }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'patternProperties': {
+                    '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$|^([a-z0-9\\-_.+]){3,37}$': {
+                      'type': 'object',
+                      'properties': {
+                         'error': { 'type': 'string' }
+                       },
+                      'required': [ 'error' ]
+                    }
+                 }
+            }
 
 ## Profile Search [GET /v1/search?query={query}]
 Searches for a profile using a search string.
@@ -3020,6 +2190,8 @@ Searches for a profile using a search string.
                {
                  "results": [
                    {
+                     "fullyQualifiedName": "albertwenger.id",
+                     "username": "albertwenger",
                      "profile": {
                        "@type": "Person", 
                        "account": [
@@ -3056,3 +2228,109 @@ Searches for a profile using a search string.
                        ...
                }
 
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': {
+                   'results': {
+                        'type': 'array',
+                        'items': {
+                           'fullyQualifiedName': { 'type': 'string', 'pattern': '^([a-z0-9\\-_.+]{3,37})\.([a-z0-9\\-_.+]{3,37})$|^([a-z0-9\\-_.+]){3,37}$' },
+                           'username': { 'type': 'string' },
+                           'profile' : { 'type': 'object' },
+                       }
+                    }
+                 }
+            }
+
+## Resolve DID [GET /v1/dids/{did}]
+Resolve a Blockstack DID to its DID document object (DDO).  In practice, the DDO
+is stored in the same way as a user profile, but a few extra DDO-specific
+fields will be filled in by this endpoint (namely, `@context` and `publicKey`).
+
+Blockstack DIDs correspond to non-revoked, non-expired names.  A DID will not
+resolve if its underlying name is revoked or expired, or if the DID does not
+correspond to an existing name.
+
++ Public Endpoint
++ Subdomain Aware
++ Parameters
+  + did: `did:stack:v0:15gxXgJyT5tM5A4Cbx99nwccynHYsBouzr-0` (string) - DID to resolve
++ Response 200 (application/json)
+  + Body
+
+            {
+                "document": {
+                    "@context": "https://w3id.org/did/v1",
+                    "publicKey": [
+                        {
+                            "id": "did:stack:v0:15gxXgJyT5tM5A4Cbx99nwccynHYsBouzr-0",
+                            "publicKeyHex": "022af593b4449b37899b34244448726aa30e9de13c518f6184a29df40823d82840",
+                            "type": "secp256k1"
+                        }
+                    ],
+                    ... omitted for brevity ...
+                },
+                "public_key": "022af593b4449b37899b34244448726aa30e9de13c518f6184a29df40823d82840"
+            }
+
+   + Schema
+
+            {
+               "type": "object",
+               "properties": {
+                  "document": {
+                     "type": "object",
+                     "properties": {
+                        "@context": { "type": "string" },
+                        "publicKey": {
+                           "type": "array",
+                           "items": {
+                              "type": "object",
+                              "properties": {
+                                 "id": { "type": "string" },
+                                 "type": { "type": "string" },
+                                 "publicKeyHex": { "type": "string", "pattern": "^[0-9a-fA-F]$" },
+                              },
+                              "required": [ "id", "type", "publicKeyHex" ],
+                           },
+                        },
+                     },
+                     "required": [ "@context", "publicKey" ],
+                  },
+                  "public_key": { "type": "string", "pattern": "^[0-9a-fA-F]$" },
+               }
+               "required": [ "document", "public_key" ]
+            }
+
+
++ Response 400 (application/json)
+  + Body
+
+            {
+               "error": "Invalid DID"
+            }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': { 'error': 'string' },
+                'required': [ 'error' ]
+            }
+
++ Response 404 (application/json)
+  + Body
+
+            {
+               "error": "Failed to get DID record: Failed to resolve DID to a non-revoked name"
+            }
+
+  + Schema
+
+            {
+                'type': 'object',
+                'properties': { 'error': 'string' },
+                'required': [ 'error' ]
+            }
